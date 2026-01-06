@@ -1,11 +1,11 @@
 defmodule ExpenseTrackerCore do
   @type expense :: %{
-    id: pos_integer(),
-    title: String.t(),
-    amount: integer(),
-    category: String.t(),
-    inserted_at: DateTime.t()
-  }
+          id: pos_integer(),
+          title: String.t(),
+          amount: integer(),
+          category: String.t(),
+          inserted_at: DateTime.t()
+        }
 
   @type t :: [expense()]
 
@@ -15,12 +15,22 @@ defmodule ExpenseTrackerCore do
     title = String.trim(title)
     category = String.trim(category)
 
-    next_id = expenses 
-              |> Enum.map(& &1.id)
-              |> Enum.max(fn -> 0 end)
-              |> Kernel.+(1)
+    next_id =
+      expenses
+      |> Enum.map(& &1.id)
+      |> Enum.max(fn -> 0 end)
+      |> Kernel.+(1)
 
-    [%{id: next_id, title: title, amount: amount, category: category, inserted_at: DateTime.utc_now()} | expenses]
+    [
+      %{
+        id: next_id,
+        title: title,
+        amount: amount,
+        category: category,
+        inserted_at: DateTime.utc_now()
+      }
+      | expenses
+    ]
   end
 
   def list(expenses) do
@@ -34,9 +44,10 @@ defmodule ExpenseTrackerCore do
   end
 
   def by_category(expenses, category) do
-    expenses 
+    expenses
     |> Enum.filter(fn e -> e.category == category end)
   end
+
   def total_by_category(expenses, category) do
     expenses
     |> by_category(category)
@@ -46,24 +57,28 @@ defmodule ExpenseTrackerCore do
   def summary_by_category(expenses) do
     expenses
     |> Enum.group_by(& &1.category)
-    |> Enum.reduce(%{}, fn {category, item}, acc -> 
-      total = item
-                |> Enum.map(& &1.amount)
-                |> Enum.reduce(0, &+/2)
-    Map.put(acc, category, total)
+    |> Enum.reduce(%{}, fn {category, item}, acc ->
+      total =
+        item
+        |> Enum.map(& &1.amount)
+        |> Enum.reduce(0, &+/2)
+
+      Map.put(acc, category, total)
     end)
   end
+
   def edit_title(expenses, id, new_title) do
     new_title = String.trim(new_title)
 
-    Enum.map(expenses, fn e -> 
-      if e.id == id do 
+    Enum.map(expenses, fn e ->
+      if e.id == id do
         %{e | title: new_title}
-      else 
+      else
         e
       end
     end)
   end
+
   def delete(expenses, id) do
     Enum.reject(expenses, fn e -> e.id == id end)
   end
