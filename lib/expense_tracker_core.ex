@@ -79,6 +79,16 @@ defmodule ExpenseTrackerCore do
     end)
   end
 
+  def update_amount(expenses, id, new_amount) when is_integer(new_amount) do
+    Enum.map(expenses, fn e ->
+      if e.id == id do
+        %{e | amount: new_amount}
+      else
+        e
+      end
+    end)
+  end
+
   def delete(expenses, id) do
     Enum.reject(expenses, fn e -> e.id == id end)
   end
